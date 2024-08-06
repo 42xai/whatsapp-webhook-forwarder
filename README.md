@@ -1,4 +1,4 @@
-# WhatsApp Webhook Forwarder
+# WhatsApp Webhook Forwarder by 42xAI
 
 ## Overview
 
@@ -24,7 +24,7 @@ WhatsApp Webhook Forwarder is a Node.js application designed to receive webhook 
 
 1. Clone the repository:
    ```
-   git clone hhttps://github.com/42xai/whatsapp-webhook-forwarder
+   git clone https://github.com/42xai/whatsapp-webhook-forwarder
    cd whatsapp-webhook-forwarder
    ```
 
@@ -79,7 +79,7 @@ docker-compose up --build
 
 ## Logging
 
-Logs are written to /logs directory and are available in the following locations:
+Logs are written to `/logs` directory and are available in the following locations:
 - Console
 - `error.log` file (for error-level logs)
 - `combined.log` file (for all logs)
@@ -99,10 +99,6 @@ whatsapp-webhook-forwarder/
 ├── README.md
 └── tsconfig.json
 ```
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
