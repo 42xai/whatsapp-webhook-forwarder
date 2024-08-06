@@ -5,6 +5,7 @@ import winston from 'winston';
 const app = express();
 const PORT = process.env.PORT || 3000;
 const TARGET_URLS = process.env.TARGET_URLS?.split(',') || [];
+const LOG_BODY = process.env.LOG_BODY?.toLowerCase() === 'true';
 
 // Configure logger
 const logger = winston.createLogger({
@@ -23,7 +24,11 @@ const logger = winston.createLogger({
 app.use(express.json());
 
 app.post('/webhook', async (req, res) => {
-  logger.info('Received webhook request', { body: req.body });
+  if (LOG_BODY) {
+    logger.info('Received webhook request', { body: req.body });
+  } else {
+    logger.info('Received webhook request');
+  }
 
   try {
     const promises = TARGET_URLS.map(url => {
