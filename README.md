@@ -86,7 +86,7 @@ docker-compose up --build
 - `LOG_BODY`: (optional) Whether to log the request body (default: false)
 
 
-# matchStoreNumber
+### matchStoreNumber
 
 - matchStoreNumber: true:  will only forward webhooks from numbers that are stored in Redis.
 - matchStoreNumber: false: will forward webhooks from all numbers.
