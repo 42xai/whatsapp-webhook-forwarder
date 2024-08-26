@@ -8,17 +8,23 @@ WhatsApp Webhook Forwarder is a Node.js application designed to receive webhook 
 
 - Receives webhook POST requests from WhatsApp API
 - Forwards received payloads to multiple configurable target URLs
+- Stores and checks phone numbers in Redis
 - Built with TypeScript
 - Uses Express.js for handling HTTP requests
 - Implements Winston for logging
 - Supports environment-based configuration
 - Includes Docker support
 
+## Architecture
+
+![WhatsApp Webhook Forwarder Architecture](https://42x-assets.s3.amazonaws.com/coworkers/diagram-export-26-8-2024-10_39_23-a.m..png)
+
 ## Prerequisites
 
 - Node.js (v20 or later)
 - npm (usually comes with Node.js)
 - Docker and Docker Compose (optional, for containerized deployment)
+- Redis (for storing phone numbers)
 
 ## Installation
 
@@ -36,7 +42,10 @@ WhatsApp Webhook Forwarder is a Node.js application designed to receive webhook 
 3. Create a `.env` file in the root directory and add your configuration:
    ```
    PORT=3000
-   TARGET_URLS=http://url1.com/webhook,http://url2.com/webhook
+   REDIS_URL=redis://localhost:6379
+   PHONE_NUMBER_EXPIRY_HOURS=22
+   API_TOKEN=your-secret-token
+   TARGET_URLS=[{"url": "http://url1.com/webhook", "matchStoreNumber": true}, {"url": "http://url2.com/webhook", "matchStoreNumber": false}]
    LOG_BODY=true
    ```
 
@@ -69,17 +78,23 @@ docker-compose up --build
 
 ## Configuration
 
-- `TARGET_URLS`: A comma-separated list of URLs to which the webhooks will be forwarded
 - `PORT`: (optional) The port on which the server will listen (default: 3000)
+- `REDIS_URL`: The URL of the Redis instance
+- `PHONE_NUMBER_EXPIRY_HOURS`: The expiry time for phone numbers stored in Redis, in hours (default: 22 hours)
+- `API_TOKEN`: The token used for authenticating requests to the `/outbound-numbers` endpoint
+- `TARGET_URLS`: A JSON string representing an array of objects, each with `url` (the target URL) and `matchStoreNumber` (a boolean indicating if the target should match stored numbers) properties
 - `LOG_BODY`: (optional) Whether to log the request body (default: false)
 
-## API Endpoint
+## API Endpoints
 
-- `POST /webhook`: Receives webhook payloads from WhatsApp API and forwards them to the configured target URLs.
+- `POST /outbound-numbers`: Stores an array of phone numbers in Redis with a specified expiry time. Requires authentication via a bearer token.
+- `POST /webhook`: Receives webhook payloads from WhatsApp API and forwards them to the configured target URLs based on the stored phone numbers and the `matchStoreNumber` setting.
+- `GET /`: Returns a welcome message.
+- `GET /webhook`: Echoes back the `hub.challenge` query parameter for webhook verification.
 
 ## Logging
 
-Logs are written to `/logs` directory and are available in the following locations:
+Logs are written to the `/logs` directory and are available in the following locations:
 - Console
 - `error.log` file (for error-level logs)
 - `combined.log` file (for all logs)
@@ -88,12 +103,19 @@ Logs are written to `/logs` directory and are available in the following locatio
 
 ```
 whatsapp-webhook-forwarder/
+whatsapp-webhook-forwarder/
 ├── src/
-│   └── index.ts
+│   ├── config.ts
+│   ├── index.ts
+│   ├── middleware/
+│   │   └── auth.ts
+├── tests/
+│   └── index.test.ts
 ├── .env
 ├── .gitignore
 ├── docker-compose.yml
 ├── Dockerfile
+├── jest.config.js
 ├── nodemon.json
 ├── package.json
 ├── README.md
