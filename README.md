@@ -88,8 +88,13 @@ docker-compose up --build
 
 ### matchStoreNumber
 
-- matchStoreNumber: true:  will only forward webhooks from numbers that are stored in Redis.
-- matchStoreNumber: false: will forward webhooks from all numbers.
+If matchStoreNumber is *true*:
+- The webhook will be forwarded to this URL only if the phone number exists in Redis.
+- If the number is not in Redis, this URL will be skipped.
+
+If matchStoreNumber is *false*:
+- The webhook will be forwarded to this URL only if the phone number does NOT exist in Redis.
+- If the number is in Redis, this URL will be skipped.
 
 ## API Endpoints
 
