@@ -85,6 +85,12 @@ docker-compose up --build
 - `TARGET_URLS`: A JSON string representing an array of objects, each with `url` (the target URL) and `matchStoreNumber` (a boolean indicating if the target should match stored numbers) properties
 - `LOG_BODY`: (optional) Whether to log the request body (default: false)
 
+
+# matchStoreNumber
+
+- matchStoreNumber: true:  will only forward webhooks from numbers that are stored in Redis.
+- matchStoreNumber: false: will forward webhooks from all numbers.
+
 ## API Endpoints
 
 - `POST /outbound-numbers`: Stores an array of phone numbers in Redis with a specified expiry time. Requires authentication via a bearer token.
