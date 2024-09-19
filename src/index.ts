@@ -111,7 +111,7 @@ app.get('/webhook', (req, res) => {
 const startServer = async () => {
   await initializeRedisClient();
   const server = app.listen(PORT, () => {
-    logger.info(`WhatsApp Webhook Forwarder running on port ${PORT}`);
+    logger.info(`WhatsApp Webhook Forwarder running on url http://127.0.0.1:${PORT}`);
   });
   return server;
 };
