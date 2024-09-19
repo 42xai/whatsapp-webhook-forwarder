@@ -3,9 +3,9 @@ services:
   whatsapp-webhook-forwarder:
     build: .
     ports:
-      - "6000:5000"
+      - "6100:3000"
     environment:
-      - PORT=5000
+      - PORT=3000
       - REDIS_URL=redis://keydb:6379
     volumes:
       - ./logs:/app/logs

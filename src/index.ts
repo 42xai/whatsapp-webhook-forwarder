@@ -11,7 +11,14 @@ const logger = winston.createLogger({
   level: 'info',
   format: winston.format.combine(
     winston.format.timestamp(),
-    winston.format.json()
+    process.env.NODE_ENV === 'production'
+      ? winston.format.json()
+      : winston.format.combine(
+          winston.format.colorize(),
+          winston.format.printf(({ timestamp, level, message, ...meta }) => {
+            return `${timestamp} ${level}: ${message} ${Object.keys(meta).length ? JSON.stringify(meta, null, 2) : ''}`;
+          })
+        )
   ),
   transports: [
     new winston.transports.Console(),
@@ -92,11 +99,12 @@ app.post('/webhook', async (req, res) => {
 });
 
 app.get('/', (req, res) => {
+  logger.info('GET /');
   res.send('WhatsApp Webhook Forwarder');
 });
 
 app.get('/webhook', (req, res) => {
-  console.log('GET /webhook', req.query);
+  logger.info('GET /webhook', { query: req.query });
   res.send(req.query['hub.challenge']);
 });
 
