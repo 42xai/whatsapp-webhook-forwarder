@@ -1,6 +1,6 @@
 // middleware/auth.ts
 import { Request, Response, NextFunction } from 'express';
-import { API_TOKEN } from './../config.ts';
+import { API_TOKEN } from './../config';
 
 export const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers['authorization'];

@@ -3,8 +3,22 @@ services:
   whatsapp-webhook-forwarder:
     build: .
     ports:
-      - "5000:5000"
+      - "6000:5000"
     environment:
       - PORT=5000
+      - REDIS_URL=redis://keydb:6379
     volumes:
       - ./logs:/app/logs
+    depends_on:
+      - keydb
+
+  keydb:
+    image: eqalpha/keydb:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - keydb-data:/data
+    command: keydb-server /etc/keydb/keydb.conf --server-threads 4
+
+volumes:
+  keydb-data:

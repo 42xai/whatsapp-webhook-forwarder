@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "module": "Preserve",
-    "moduleResolution": "Bundler",
+    "module": "CommonJS",  // Change this from "Preserve" to "CommonJS"
+    "moduleResolution": "Node",  // Change this from "Bundler" to "Node"
     "outDir": "./dist",
     "rootDir": "./src",
     "strict": true,
@@ -10,10 +10,8 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "allowImportingTsExtensions": true,
-    "emitDeclarationOnly": true,
+    "emitDeclarationOnly": false,
     "declaration": true,
-    
   },
   "ts-node": {
     "esm": true,
