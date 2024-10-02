@@ -1,6 +1,6 @@
 version: "3"
 services:
-  coworkers:
+  whatsapp-webhook-forwarder:
     container_name: whatsapp-webhook-forwarder
     image: ghcr.io/42xai/whatsapp-webhook-forwarder:latest
     command: npm run start
