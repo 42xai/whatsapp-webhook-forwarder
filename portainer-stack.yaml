@@ -5,8 +5,6 @@ services:
     image: ghcr.io/42xai/whatsapp-webhook-forwarder:latest
     command: npm run start
     restart: unless-stopped
-    env_file:
-      - stack.env
     networks:
       - management_common
     ports:
