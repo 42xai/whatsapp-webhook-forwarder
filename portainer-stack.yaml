@@ -1,0 +1,17 @@
+version: "3"
+services:
+  coworkers:
+    container_name: whatsapp-webhook-forwarder
+    image: ghcr.io/42xai/whatsapp-webhook-forwarder:latest
+    command: npm run start
+    restart: unless-stopped
+    env_file:
+      - stack.env
+    networks:
+      - management_common
+    ports:
+      - 3700:3000
+
+networks:
+  management_common:
+    external: true
