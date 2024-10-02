@@ -29,12 +29,14 @@ WhatsApp Webhook Forwarder is a Node.js application designed to receive webhook 
 ## Installation
 
 1. Clone the repository:
+
    ```
    git clone https://github.com/42xai/whatsapp-webhook-forwarder
    cd whatsapp-webhook-forwarder
    ```
 
 2. Install dependencies:
+
    ```
    npm install
    ```
@@ -85,14 +87,15 @@ docker-compose up --build
 - `TARGET_URLS`: A JSON string representing an array of objects, each with `url` (the target URL) and `matchStoreNumber` (a boolean indicating if the target should match stored numbers) properties
 - `LOG_BODY`: (optional) Whether to log the request body (default: false)
 
-
 ### matchStoreNumber
 
-If matchStoreNumber is *true*:
+If matchStoreNumber is _true_:
+
 - The webhook will be forwarded to this URL only if the phone number exists in Redis.
 - If the number is not in Redis, this URL will be skipped.
 
-If matchStoreNumber is *false*:
+If matchStoreNumber is _false_:
+
 - The webhook will be forwarded to this URL only if the phone number does NOT exist in Redis.
 - If the number is in Redis, this URL will be skipped.
 
@@ -131,6 +134,7 @@ flowchart TD
 ## Logging
 
 Logs are written to the `/logs` directory and are available in the following locations:
+
 - Console
 - `error.log` file (for error-level logs)
 - `combined.log` file (for all logs)
