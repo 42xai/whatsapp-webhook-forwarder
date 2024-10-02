@@ -49,9 +49,3 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-
-  deploy-to-portainer:
-    needs: build-and-push
-    name: Deploy to Portainer
-    uses: 42xai/platform-utils/.github/workflows/deploy-to-portainer.yaml@main
-    secrets: inherit
