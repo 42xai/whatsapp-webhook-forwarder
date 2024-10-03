@@ -77,10 +77,6 @@ app.post("/webhook", async (req, res) => {
 
   const fromNumber =
     req.body?.entry?.[0]?.changes?.[0]?.value?.messages?.[0]?.from;
-  if (!fromNumber) {
-    logger.error("No phone number found in the payload");
-    return res.sendStatus(500);
-  }
 
   try {
     const promises = TARGET_URLS.map(
@@ -91,15 +87,16 @@ app.post("/webhook", async (req, res) => {
         url: string;
         matchStoreNumber: boolean;
       }) => {
-        const existsInStore = await redisClient.exists(`phone:${fromNumber}`);
-
-        if (!matchStoreNumber && existsInStore) {
-          logger.info(`Skipping ${url} - number in Redis`);
-          return;
-        }
-        if (matchStoreNumber && !existsInStore) {
-          logger.info(`Skipping ${url} - number not in Redis`);
-          return;
+        if (fromNumber) {
+          const existsInStore = await redisClient.exists(`phone:${fromNumber}`);
+          if (!matchStoreNumber && existsInStore) {
+            logger.info(`Skipping ${url} - number in Redis`);
+            return;
+          }
+          if (matchStoreNumber && !existsInStore) {
+            logger.info(`Skipping ${url} - number not in Redis`);
+            return;
+          }
         }
 
         logger.info(`Forwarding to ${url}`);
