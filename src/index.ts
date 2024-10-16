@@ -7,6 +7,7 @@ import {
   PHONE_NUMBER_EXPIRY,
   TARGET_URLS,
   LOG_BODY,
+  API_TOKEN,
 } from "./config";
 import { authenticateToken } from "./middleware/auth";
 
@@ -44,7 +45,7 @@ async function initializeRedisClient() {
 }
 
 app.post("/outbound-numbers", authenticateToken, async (req, res) => {
-  const { phone_numbers } = req.body;
+  const { phone_numbers, assistant_id, template_id, components } = req.body;
 
   if (!Array.isArray(phone_numbers)) {
     return res
@@ -61,6 +62,29 @@ app.post("/outbound-numbers", authenticateToken, async (req, res) => {
     logger.info("Stored phone numbers in Redis", {
       count: phone_numbers.length,
     });
+
+    if (assistant_id && template_id) {
+      await fetch(
+        "https://coworkers-api.42x.ai/message-relay/whatsapp/send-cold-message",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${API_TOKEN}`,
+          },
+          body: JSON.stringify({
+            chatId: assistant_id,
+            to: phone_numbers,
+            templateName: template_id,
+            ...(components ? { components } : {}),
+          }),
+        }
+      );
+      logger.info(
+        `Conversation initiated with ${phone_numbers.length} numbers`
+      );
+    }
+
     res.status(200).json({ message: "Phone numbers stored successfully" });
   } catch (error) {
     logger.error("Error storing phone numbers in Redis:", error);
