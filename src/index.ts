@@ -100,7 +100,8 @@ app.post("/webhook", async (req, res) => {
   }
 
   const fromNumber =
-    req.body?.entry?.[0]?.changes?.[0]?.value?.messages?.[0]?.from;
+    req.body?.entry?.[0]?.changes?.[0]?.value?.messages?.[0]?.from ||
+    req.body?.entry?.[0]?.changes?.[0]?.value?.statuses?.[0]?.recipient_id;
 
   try {
     const promises = TARGET_URLS.map(
