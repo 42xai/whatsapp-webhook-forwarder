@@ -7,7 +7,10 @@ import {
   PHONE_NUMBER_EXPIRY,
   TARGET_URLS,
   LOG_BODY,
-  API_TOKEN,
+  API_TOKEN_42X,
+  SALESFORCE_CLIENT_ID,
+  SALESFORCE_CLIENT_SECRET,
+  SALESFORCE_URL,
 } from "./config";
 import { authenticateToken } from "./middleware/auth";
 
@@ -64,13 +67,13 @@ app.post("/outbound-numbers", authenticateToken, async (req, res) => {
     });
 
     if (assistant_id && template_id) {
-      await fetch(
+      const response = await fetch(
         "https://coworkers-api.42x.ai/message-relay/whatsapp/send-cold-message",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${API_TOKEN}`,
+            Authorization: `Bearer ${API_TOKEN_42X}`,
           },
           body: JSON.stringify({
             chatId: assistant_id,
@@ -80,6 +83,12 @@ app.post("/outbound-numbers", authenticateToken, async (req, res) => {
           }),
         }
       );
+
+      if (!response.ok) {
+        logger.error("Error initiating conversations. Fetch failed");
+        return res.status(500).json({ error: "Internal server error" });
+      }
+
       logger.info(
         `Conversation initiated with ${phone_numbers.length} numbers`
       );
@@ -90,6 +99,59 @@ app.post("/outbound-numbers", authenticateToken, async (req, res) => {
     logger.error("Error storing phone numbers in Redis:", error);
     res.status(500).json({ error: "Internal server error" });
   }
+});
+
+app.post("/handoff", authenticateToken, async (req, res) => {
+  const { metadata } = req.body;
+
+  if (!metadata || !metadata.phone) {
+    logger.error("No phone number provided");
+    return res
+      .status(400)
+      .json({ error: "Invalid input. No phone number in payload." });
+  }
+
+  try {
+    // Remove the phone number from Redis
+    await redisClient.del(`phone:${metadata.phone}`);
+
+    // Fetch Salesforce credentials
+    const queryParams = new URLSearchParams({
+      grant_type: "client_credentials",
+      client_id: SALESFORCE_CLIENT_ID,
+      client_secret: SALESFORCE_CLIENT_SECRET,
+      format: "json",
+    });
+
+    const credentials = await fetch(
+      `${SALESFORCE_URL}/services/oauth2/token?${queryParams}`
+    );
+    const { access_token } = await credentials.json();
+
+    // Send the payload to Salesforce
+    const notification = await fetch(
+      `${SALESFORCE_URL}/services/apexrest/clara/syncChats/`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${access_token}`,
+        },
+        body: JSON.stringify(req.body),
+      }
+    );
+
+    if (!notification.ok) {
+      logger.error("Salesforce webhook failed");
+      res.status(500).json({ error: "Salesforce webhook failed" });
+    }
+  } catch (error) {
+    logger.error("Error sending Salesforce webhook notification:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+
+  logger.info(`Successfully handed off phone number: ${metadata.phone}`);
+  res.status(200).json({ message: "Handed off phone number successfully" });
 });
 
 app.post("/webhook", async (req, res) => {
