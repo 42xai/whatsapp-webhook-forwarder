@@ -143,11 +143,11 @@ app.post("/handoff", authenticateToken, async (req, res) => {
 
     if (!notification.ok) {
       logger.error("Salesforce webhook failed");
-      res.status(500).json({ error: "Salesforce webhook failed" });
+      return res.status(500).json({ error: "Salesforce webhook failed" });
     }
   } catch (error) {
     logger.error("Error sending Salesforce webhook notification:", error);
-    res.status(500).json({ error: "Internal server error" });
+    return res.status(500).json({ error: "Internal server error" });
   }
 
   logger.info(`Successfully handed off phone number: ${metadata.phone}`);
